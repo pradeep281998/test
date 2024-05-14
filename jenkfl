@@ -1,0 +1,41 @@
+pipeline {
+
+    agent any
+
+    parameters {
+
+        // Define Active Choices Reactive Parameter for branch selection
+
+        string(name: 'BRANCH', description: 'Select the branch to build', defaultValue: 'master', trim: true)
+
+    }
+
+    stages {
+
+        stage('Checkout') {
+
+            steps {
+
+                // Checkout code from the selected branch
+
+                git url: 'https://github.com/pradeep281998/test.git', branch: params.BRANCH
+
+            }
+
+        }
+
+        stage('Build') {
+
+            steps {
+               sh 'pwd'
+                // Your build steps here
+
+            }
+
+        }
+
+        // Add more stages as needed
+
+    }
+
+}
