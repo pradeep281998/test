@@ -1,8 +1,58 @@
-dfdf
-sds
-dsd
-Updated  new data
-f
-fdsfdsfsf
-ssfsfd
-dfdfdsf45324323243242
+{
+  "agent": {
+    "metrics_collection_interval": 60,
+    "run_as_user": "root"
+  },
+  "metrics": {
+    "append_dimensions": {
+      "InstanceId": "${aws:InstanceId}"
+    },
+    "metrics_collected": {
+      "cpu": {
+        "measurement": [
+          "cpu_time_active",
+          "cpu_usage_active"
+        ],
+        "metrics_collection_interval": 60,
+        "resources": [
+          "*"
+        ]
+      },
+      "disk": {
+        "measurement": [
+          "disk_total"
+        ],
+        "metrics_collection_interval": 60,
+        "resources": [
+          "*"
+        ]
+      },
+      "mem": {
+        "measurement": [
+          "mem_active",
+          "mem_available",
+          "mem_total"
+        ],
+        "metrics_collection_interval": 60
+      },
+      "procstat": {
+        "measurement": [
+          "processes_total"
+        ],
+        "metrics_collection_interval": 60
+      }
+    }
+  }
+}
+
+
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-config-wizard
+
+
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/path/to/your-config.json -s
+
+
+
+
+
+
