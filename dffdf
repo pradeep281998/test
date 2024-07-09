@@ -1,4 +1,19 @@
-frefefefe
-dsdswdswdw
-dfdsfedfd
-update
+post{
+        failure{
+            mail to: "nadimpalli.pradeepk@stellaripl.com, vasant.hareshbhai@stellaripl.com",
+            cc: "harsha.gr@stellaripl.com, pratikld@stellaripl.com",
+            subject: "jenkins build:${currentBuild.currentResult}: ${env.JOB_NAME}",
+            body: "${currentBuild.currentResult}: Job ${env.JOB_NAME}\nMore Info can be found here: ${env.BUILD_URL}"
+            
+        }
+        success{
+            mail to: " nadimpali.pradeepk@stellaripl.com , vasant.hareshbhai@stellaripl.com",
+                 cc: "harsha.gr@stellaripl.com, pratikld@stellaripl.com",
+            subject: "jenkins build:${currentBuild.currentResult}: ${env.JOB_NAME}",
+               body: "${currentBuild.currentResult}: Job ${env.JOB_NAME}\nMore Info can be found here: ${env.BUILD_URL}"
+            
+        }
+
+    }
+
+}
