@@ -1,16 +1,56 @@
-+ cat /var/lib/jenkins/workspace/test/build-log.txt
-cat: /var/lib/jenkins/workspace/test/build-log.txt: No such file or directory
-[Pipeline] }
-[Pipeline] // script
-Error when executing always post condition:
-Also:   org.jenkinsci.plugins.workflow.actions.ErrorAction$ErrorId: ae7ee73d-8486-4c94-b379-1c37bf37cbd3
-hudson.AbortException: script returned exit code 1
-	at org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep$Execution.handleExit(DurableTaskStep.java:668)
-	at org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep$Execution.check(DurableTaskStep.java:614)
-	at org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep$Execution.run(DurableTaskStep.java:555)
-	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
-	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
-	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
-	at java.base/java.lang.Thread.run(Thread.java:840)
+pipeline {
+    agent any
+    
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    // Ensure the build-log.txt file exists and is writable
+                    sh 'touch build-log.txt'
+                    
+                    // Redirect console output to the build-log.txt file
+                    sh '''
+                        exec > >(tee -a build-log.txt) 2>&1
+                        echo 'Starting build process...'
+                        # Add your build commands here
+                        echo 'Building...'
+                    '''
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                // Ensure the log file exists before proceeding
+                if (fileExists('build-log.txt')) {
+                    // Archive the log file as an artifact
+                    archiveArtifacts artifacts: 'build-log.txt', allowEmptyArchive: true
+                } else {
+                    echo 'Log file does not exist.'
+                }
+            }
+        }
+        success {
+            emailext (
+                to: "nadimpali.pradeep.com",
+                cc: "harsh, aripl.com",
+                subject: "Jenkins Build SUCCESS: ${env.JOB_NAME}",
+                body: "SUCCESS: Job ${env.JOB_NAME}\nMore Info can be found here: ${env.BUILD_URL}",
+                attachLog: true,
+                attachmentsPattern: 'build-log.txt'
+            )
+        }
+        failure {
+            emailext (
+                to: "nadimpali.pradeep.com",
+                cc: "harsh, aripl.com",
+                subject: "Jenkins Build FAILURE: ${env.JOB_NAME}",
+                body: "FAILURE: Job ${env.JOB_NAME}\nMore Info can be found here: ${env.BUILD_URL}",
+                attachLog: true,
+                attachmentsPattern: 'build-log.txt'
+            )
+        }
+    }
+}
