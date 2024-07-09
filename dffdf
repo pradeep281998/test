@@ -55,4 +55,56 @@ pipeline {
 
 
 
+---------
+
+pipeline {
+    agent any
+    
+    stages {
+        stage('Build') {
+            steps {
+                // Your build steps here
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                // Save the console output to a file
+                def logFile = "build-log.txt"
+                writeFile file: logFile, text: currentBuild.rawBuild.getLog(10000).join("\n")
+                
+                // Archive the log file as an artifact
+                archiveArtifacts artifacts: logFile, allowEmptyArchive: true
+            }
+        }
+        success {
+            // Send email with the log file attached on success
+            emailext (
+                to: "nadimpali.pradeep.com",
+                cc: "harsh, aripl.com",
+                subject: "Jenkins Build SUCCESS: ${env.JOB_NAME}",
+                body: "SUCCESS: Job ${env.JOB_NAME}\nMore Info can be found here: ${env.BUILD_URL}",
+                attachLog: true,
+                attachmentsPattern: "build-log.txt"
+            )
+        }
+        failure {
+            // Send email with the log file attached on failure
+            emailext (
+                to: "nadimpali.pradeep.com",
+                cc: "harsh, aripl.com",
+                subject: "Jenkins Build FAILURE: ${env.JOB_NAME}",
+                body: "FAILURE: Job ${env.JOB_NAME}\nMore Info can be found here: ${env.BUILD_URL}",
+                attachLog: true,
+                attachmentsPattern: "build-log.txt"
+            )
+        }
+    }
+}
+
+
+
+
 
