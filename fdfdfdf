@@ -1,6 +1,36 @@
-gfdsgfdgf2321321321321333213131
-sdsd
 
-feww
-3241222
-sdsdsafsfsd
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "aws-portal:*",
+                "ce:*",
+                "cur:*",
+                "budgets:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+
+
+___________
+
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ce:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+
+
+
