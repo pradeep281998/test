@@ -18,8 +18,9 @@ pipeline {
         )
   }
   triggers {
-   pollSCM (H/2 * * * *)
-  }
+  pollSCM 'H/5 * * * *'
+}
+
   stages {
     stage('Example') {
       steps {
