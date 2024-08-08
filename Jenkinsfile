@@ -21,14 +21,11 @@ pipeline {
   stages {
     stage('Example') {
       steps {
+        ws('/var/opt/test')
         git branch: "${params.BRANCH}", url: 'https://github.com/pradeep281998/test.git'
       }
     }
-    stage('cp') {
-        steps{
-            sh 'cp -rf /var/lib/jenkins/workspace/build /var/www/html/'
-        }
-    }
+   
   }
 }
 
