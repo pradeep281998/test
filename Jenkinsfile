@@ -16,6 +16,11 @@ pipeline {
             quickFilterEnabled: true 
 
         )
+    choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'prod'],
+            description: 'Select the environment'
+        )
   }
  
   stages {
