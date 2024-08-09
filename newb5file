@@ -1,1 +1,104 @@
-ssdsd
+If you don't see the AWS credentials option under Manage Jenkins -> Manage Credentials, you might need to install the AWS Steps Plugin or AWS Common Credentials Plugin. Here's how to install the necessary plugins and set up AWS credentials:
+1. Install Necessary Plugins
+
+    Go to Manage Jenkins:
+        From your Jenkins Dashboard, navigate to Manage Jenkins -> Manage Plugins.
+
+    Install AWS Steps Plugin or AWS Common Credentials Plugin:
+
+        Go to the Available tab.
+
+        Search for AWS Steps or AWS Common Credentials.
+
+        Check the box next to the plugin and click Install without restart or Download now and install after restart.
+
+        AWS Steps Plugin: Provides steps to interact with AWS services, including credentials handling.
+
+        AWS Common Credentials Plugin: Adds support for managing AWS credentials.
+
+    Restart Jenkins:
+        If required, restart Jenkins to complete the plugin installation.
+
+2. Add AWS Credentials
+
+After installing the required plugins, follow these steps to add AWS credentials:
+
+    Go to Manage Jenkins:
+        Navigate to Manage Jenkins -> Manage Credentials.
+
+    Select Domain:
+        Choose the domain where you want to add the credentials (you can use the (global) domain for global use).
+
+    Add Credentials:
+        Click Add Credentials.
+        From the Kind dropdown, you should now see options like Amazon Web Services or similar. Select it.
+        Enter your Access Key ID and Secret Access Key.
+        Provide an ID and description for these credentials (e.g., aws-ecr-credentials).
+
+    Save Credentials:
+        Click OK to save the credentials.
+
+3. Use AWS Credentials in Pipeline
+
+In your Jenkins pipeline, you can now use these credentials to authenticate with AWS services. Here's a refined example using the credentials:
+
+
+
+
+
+
+
+pipeline {
+    agent any
+    environment {
+        AWS_CREDENTIALS_ID = 'aws-ecr-credentials' // Replace with your AWS credentials ID
+        AWS_REGION = 'us-east-1' // Replace with your AWS region
+        ECR_REPOSITORY = 'your-ecr-repository' // Replace with your ECR repository name
+        IMAGE_TAG = 'latest' // Replace with your desired image tag
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout your code
+                checkout scm
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build Docker image
+                    sh 'docker build -t ${ECR_REPOSITORY}:${IMAGE_TAG} .'
+                }
+            }
+        }
+        stage('Login to AWS ECR') {
+            steps {
+                script {
+                    // Get AWS credentials and login to ECR
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
+                        sh """
+                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                        """
+                    }
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    // Tag Docker image for ECR
+                    sh "docker tag ${ECR_REPOSITORY}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}"
+                    
+                    // Push Docker image to ECR
+                    sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}"
+                }
+            }
+        }
+    }
+    post {
+        always {
+            // Cleanup
+            cleanWs()
+        }
+    }
+}
