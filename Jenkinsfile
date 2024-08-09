@@ -1,6 +1,6 @@
 pipeline {
-//  agent any
-   agent none
+  agent any
+//   agent none
   parameters {
       gitParameter( 
 
@@ -26,9 +26,7 @@ pipeline {
  
   stages {
     stage('Example') {
-      agent {
-               label "${params.ENVIRONMENT}"
-           }
+ 
       steps {
      //   ws('/var/opt/test'){
         dir('/var/opt/test'){
